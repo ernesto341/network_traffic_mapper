@@ -79,7 +79,7 @@ void displayStats(void)
 	for (; it != end; ++it)
 	{
 		memset(buf, 0, 65535);
-		snprintf(buf, 65534, "%-19s  -->  %-19s  :  %-8d  |  (%-12.6f, %-12.6f)  -->  (%-12.6f, %-12.6f)", it->src_ip, it->dst_ip, it->proto, it->src[0], it->src[1], it->dst[0], it->dst[1]);
+		snprintf(buf, 65534, "%-19s  -->  %-19s  :  %-8d  |  (%-11.6f, %-11.6f)  -->  (%-11.6f, %-11.6f)", it->src_ip, it->dst_ip, it->proto, it->src[0], it->src[1], it->dst[0], it->dst[1]);
 		ggprint8b(&r, 10, 0x00111111, buf);
 	}
 }

@@ -189,7 +189,7 @@ inline static void check_keys(XEvent *e)
 	}
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char * argv[], char *envp[])
 {
 	done = 0;
 	LIVE_DATA = 0;
@@ -309,6 +309,7 @@ int main(int argc, char * argv[])
 		if (restart > 10)
 		{
 			cerr << "restarting due to excessive invalid lengths...\n" << endl << flush;
+			done = 1;
 			break;
 		}
 		while(XPending(dpy))
@@ -338,6 +339,10 @@ int main(int argc, char * argv[])
 	}
 	cleanupXWindows();
 	cleanup_fonts();
+	if (restart > 10)
+	{
+		execve("./project\0", argv, envp);
+	}
 	return (0);
 }
 
