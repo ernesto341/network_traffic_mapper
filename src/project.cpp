@@ -16,7 +16,7 @@
 #include <fonts.h>
 #include <capture.h>
 #include <setup.h>
-#include <gnu/libc-version.h>
+//#include <gnu/libc-version.h>
 
 using namespace std;
 
@@ -45,10 +45,6 @@ GLXContext glc;
 pthread_mutex_t lines_mutex;
 threadStuff threadArgs[MAX_THREADS];
 
-void initXWindows(void);
-void init_opengl(void);
-void init_textures(void);
-void cleanupXWindows(void);
 void physics(void);
 void render(void);
 
@@ -127,35 +123,6 @@ void takeScreenshot(const char *filename, int reset)
 	XFree(image);
 }
 
-inline static void check_resize(XEvent *e)
-{
-	//The ConfigureNotify is sent by the
-	//server if the window is resized.
-	if (e->type != ConfigureNotify)
-	{
-		return;
-	}
-	XConfigureEvent xce = e->xconfigure;
-	size_t x = 0, y = 0;
-	if ((xce.width >= 0 && xce.height >= 0) && ((size_t)xce.width != xres || (size_t)xce.height != yres))
-	{
-		//Window size did change.
-		// enforce 2x1 dimensions
-		if (xce.width < xce.height)
-		{
-			x = (size_t)xce.width;
-			y = x * 2;
-			MAX_LENGTH = sqrt((xres * xres) + (yres * yres));
-		}
-		else
-		{
-			y = (size_t)xce.height;
-			x = y * 2;
-		}
-		reshape_window(x, y);
-	}
-}
-
 inline static void check_keys(XEvent *e)
 {
 	string cmd;
@@ -208,14 +175,7 @@ int main(int argc, char * argv[], char *envp[])
 		strncpy(tmp, argv[i++], 255);
 		if (strcmp(tmp, "-l") == 0 || strcmp(tmp, "--live-data") == 0)
 		{
-			if (atof(gnu_get_libc_version()) < 2.14)
-			{
-				LIVE_DATA = 2;
-			}
-			else
-			{
-				LIVE_DATA = 1;
-			}
+			LIVE_DATA = 1;
 		}
 		else if (strcmp(tmp, "-s") == 0 || strcmp(tmp, "--simulate") == 0)
 		{

@@ -129,6 +129,34 @@ void init_textures(void)
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, background_map->data);
 }
 
+void check_resize(XEvent *e)
+{
+	//The ConfigureNotify is sent by the
+	//server if the window is resized.
+	if (e->type != ConfigureNotify)
+	{
+		return;
+	}
+	XConfigureEvent xce = e->xconfigure;
+	size_t x = 0, y = 0;
+	if ((xce.width >= 0 && xce.height >= 0) && ((size_t)xce.width != xres || (size_t)xce.height != yres))
+	{
+		//Window size did change.
+		// enforce 2x1 dimensions
+		if (xce.width < xce.height)
+		{
+			x = (size_t)xce.width;
+			y = x * 2;
+			MAX_LENGTH = sqrt((xres * xres) + (yres * yres));
+		}
+		else
+		{
+			y = (size_t)xce.height;
+			x = y * 2;
+		}
+		reshape_window(x, y);
+	}
+}
 
 void init_opengl(void)
 {
