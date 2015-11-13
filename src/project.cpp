@@ -16,6 +16,7 @@
 #include <fonts.h>
 #include <capture.h>
 #include <setup.h>
+#include <gnu/libc-version.h>
 
 using namespace std;
 
@@ -23,7 +24,12 @@ int LIVE_DATA = 0;
 int image_dims[3];
 size_t xres=840, yres=420;
 volatile sig_atomic_t done = 0;
+volatile sig_atomic_t restart = 0;
 Flt MAX_LENGTH = sqrt((xres * xres) + (yres * yres));
+
+Vec target1 = {35.3460973, -119.1032019, 0};
+Vec target2 = {55.7267323, 37.5213289, 0};
+Vec target3 = {39.897511, 116.3891782, 0};
 
 vector<Line> lines;
 vector<Loc> src_locs;
@@ -202,7 +208,14 @@ int main(int argc, char * argv[])
 		strncpy(tmp, argv[i++], 255);
 		if (strcmp(tmp, "-l") == 0 || strcmp(tmp, "--live-data") == 0)
 		{
-			LIVE_DATA = 1;
+			if (atof(gnu_get_libc_version()) < 2.14)
+			{
+				LIVE_DATA = 2;
+			}
+			else
+			{
+				LIVE_DATA = 1;
+			}
 		}
 		else if (strcmp(tmp, "-s") == 0 || strcmp(tmp, "--simulate") == 0)
 		{
@@ -293,6 +306,11 @@ int main(int argc, char * argv[])
 	}
 	while(!done)
 	{
+		if (restart > 10)
+		{
+			cerr << "restarting due to excessive invalid lengths...\n" << endl << flush;
+			break;
+		}
 		while(XPending(dpy))
 		{
 			XNextEvent(dpy, &e);
@@ -330,14 +348,14 @@ void physics(void)
 		Vec tmp1, tmp2;
 		if (lines.size() < 5 && rand() % 4 == 0)
 		{
-			switch(rand() % 4)
+			switch(rand() % 3)
 			{
 				case 0:
-					tmp1[0] = 35.3460973;
-					tmp1[1] = -119.1032019;
+					tmp1[0] = target1[0];
+					tmp1[1] = target1[1];
 					tmp1[2] = 0.;
-					tmp2[0] = 55.7267323;
-					tmp2[1] = 37.5213289;
+					tmp2[0] = target2[0];
+					tmp2[1] = target2[1];
 					tmp2[2] = 0.;
 					if (rand() % 2)
 					{
@@ -349,11 +367,11 @@ void physics(void)
 					}
 					break;
 				case 1:
-					tmp1[0] = 35.3460973;
-					tmp1[1] = -119.1032019;
+					tmp1[0] = target1[0];
+					tmp1[1] = target1[1];
 					tmp1[2] = 0.;
-					tmp2[0] = 0.;
-					tmp2[1] = 0.;
+					tmp2[0] = target3[0];
+					tmp2[1] = target3[1];
 					tmp2[2] = 0.;
 					if (rand() % 2)
 					{
@@ -365,11 +383,11 @@ void physics(void)
 					}
 					break;
 				case 2:
-					tmp1[0] = 35.3460973;
-					tmp1[1] = -119.1032019;
+					tmp1[0] = target3[0];
+					tmp1[1] = target3[1];
 					tmp1[2] = 0.;
-					tmp2[0] = 39.897511;
-					tmp2[1] = 116.3891782;
+					tmp2[0] = target2[0];
+					tmp2[1] = target2[1];
 					tmp2[2] = 0.;
 					if (rand() % 2)
 					{
@@ -378,22 +396,6 @@ void physics(void)
 					else
 					{
 						addLine(tmp2, tmp1, "136.168.201.100\0", "123.94.22.85\0", 10441, 23);
-					}
-					break;
-				case 3:
-					tmp1[0] = 55.7267323;
-					tmp1[1] = 37.5213289;
-					tmp1[2] = 0.;
-					tmp2[0] = 39.897511;
-					tmp2[1] = 116.3891782;
-					tmp2[2] = 0.;
-					if (rand() % 2)
-					{
-						addLine(tmp1, tmp2, "87.54.23.123\0", "123.94.22.85\0", 10441, 23);
-					}
-					else
-					{
-						addLine(tmp2, tmp1, "87.54.23.123\0", "123.94.22.85\0", 10441, 23);
 					}
 					break;
 			}

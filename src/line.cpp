@@ -58,7 +58,7 @@ void displayStats(void)
 	r.center = 1;
 	ggprint8b(&r, 10, 0x00111111, "Active Traffic");
 	ggprint8b(&r, 10, 0x00111111, "===========================================================================================");
-	ggprint8b(&r, 10, 0x00111111, "Source IP         -->  Destination IP    :  Port  |  Source Coords  -->  Destination Coords");
+	ggprint8b(&r, 10, 0x00111111, "Source IP           -->    Destination IP     :   Port   |    Source Coords    -->    Destination Coords");
 	vector<Line>::reverse_iterator rit;
 	i = 0;
 	ct = ((lines.size() > qty) ? qty : lines.size());
@@ -79,7 +79,7 @@ void displayStats(void)
 	for (; it != end; ++it)
 	{
 		memset(buf, 0, 65535);
-		snprintf(buf, 65534, "%s  -->  %s  :  %d  |  (%0.8f, %0.8f)  -->  (%0.8f, %0.8f)", it->src_ip, it->dst_ip, it->proto, it->src[0], it->src[1], it->dst[0], it->dst[1]);
+		snprintf(buf, 65534, "%-19s  -->  %-19s  :  %-8d  |  (%-12.6f, %-12.6f)  -->  (%-12.6f, %-12.6f)", it->src_ip, it->dst_ip, it->proto, it->src[0], it->src[1], it->dst[0], it->dst[1]);
 		ggprint8b(&r, 10, 0x00111111, buf);
 	}
 }
@@ -141,7 +141,16 @@ void iterateLines()
 	{
 		if (!valid(begin))
 		{
+			restart++;
 			continue;
+		}
+		else
+		{
+			restart--;
+			if (restart < 0)
+			{
+				restart = 0;
+			}
 		}
 		if (begin->pos == 0)
 		{

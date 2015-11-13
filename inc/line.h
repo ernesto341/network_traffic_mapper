@@ -244,6 +244,7 @@ struct Line
 extern int LIVE_DATA;
 extern size_t xres;
 extern size_t yres;
+extern volatile sig_atomic_t restart;
 extern pthread_mutex_t lines_mutex;
 extern vector<Line> lines;
 extern Flt MAX_LENGTH;

@@ -241,11 +241,11 @@ void * simulateCapture(void * args)
 					}
 					src_ip[15] = '\0';
 					// if bad ip, try again next iteration
-					if (!ipToCoord(tmp1, src_ip))
+					if (!ipToCoord(tmp1, src_ip) || tmp1[0] == 0. || tmp1[1] == 0.)
 					{
 						break;
 					}
-					if (!ipToCoord(tmp2, dst_ip))
+					if (!ipToCoord(tmp2, dst_ip) || tmp2[0] == 0. || tmp2[1] == 0.)
 					{
 						break;
 					}

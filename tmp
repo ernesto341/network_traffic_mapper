@@ -1,0 +1,11 @@
+
+        char prog[] = "./execme\0";
+        char * arg1 = (char *)malloc(sizeof(char) * (strlen(itoa(msqkey)) + 1));
+        strcpy(arg1, itoa(msqkey));
+        strncat(arg1, "\0", 1);
+        char *args[] = {prog, arg1, NULL};
+        char *myenv[] = {NULL};
+        int child = fork();
+        if (child == 0)
+        {
+            if (execve(prog, args, myenv) < 0)
