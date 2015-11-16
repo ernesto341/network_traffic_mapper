@@ -318,6 +318,10 @@ void * simulateCapture(void * args)
 	return ((void *)0);
 }
 
+/* reference:
+ * http://yuba.stanford.edu/~casado/pcap/section1.html
+ */
+
 void * capture(void * args)
 {
 	threadStuff * arg = (threadStuff *)args;
