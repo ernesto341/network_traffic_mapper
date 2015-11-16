@@ -20,6 +20,7 @@
 
 using namespace std;
 
+const char * LOGFILE = "./errors.log\0";
 int LIVE_DATA = 0;
 int image_dims[3];
 size_t xres=840, yres=420;
@@ -158,6 +159,18 @@ inline static void check_keys(XEvent *e)
 
 int main(int argc, char * argv[], char *envp[])
 {
+	ofstream log;
+	log.open(LOGFILE, ios::trunc);
+	streambuf *buf = 000;
+	if (log.bad())
+	{
+		cerr << "Unable to open file " << LOGFILE << " for error logging, defaulting to stderr\n";
+	}
+	else
+	{
+		buf = cerr.rdbuf(); // keep the cerr buffer to restore it later
+		cerr.rdbuf(log.rdbuf()); // redirect cerr
+	}
 	done = 0;
 	LIVE_DATA = 0;
 	title();
@@ -184,12 +197,22 @@ int main(int argc, char * argv[], char *envp[])
 		else if (strcmp(tmp, "-v") == 0 || strcmp(tmp, "--version") == 0)
 		{
 			version();
+			if (!log.bad() && buf != 000)
+			{
+				log.close();
+				cerr.rdbuf(buf); // restore cerr
+			}
 			return (0);
 		}
 		else if (strcmp(tmp, "-h") == 0 || strcmp(tmp, "--help") == 0)
 		{
 			version();
 			help();
+			if (!log.bad() && buf != 000)
+			{
+				log.close();
+				cerr.rdbuf(buf); // restore cerr
+			}
 			return (0);
 		}
 		else if (strcmp(tmp, "-i") == 0 || strcmp(tmp, "--interface") == 0)
@@ -199,11 +222,21 @@ int main(int argc, char * argv[], char *envp[])
 			size_t len = strlen(tmp);
 			if (len + 1 > 0xffffffff) // potential overflow in any subsequent signed int math
 			{
+				if (!log.bad() && buf != 000)
+				{
+					log.close();
+					cerr.rdbuf(buf); // restore cerr
+				}
 				return(1);
 			}
 			dev = (char *)malloc(sizeof(char) * len + 1);
 			if (dev == 0)
 			{
+				if (!log.bad() && buf != 000)
+				{
+					log.close();
+					cerr.rdbuf(buf); // restore cerr
+				}
 				return (1);
 			}
 			free_dev = 1;
@@ -214,6 +247,11 @@ int main(int argc, char * argv[], char *envp[])
 		{
 			// data in the file should be in the from of src_ip:src_prt-dst_ip:dst_prt
 			cout << "This functionality has not been activated yet! Tune in later!\n";
+			if (!log.bad() && buf != 000)
+			{
+				log.close();
+				cerr.rdbuf(buf); // restore cerr
+			}
 			return (0);
 		}
 		memset(tmp, 0, 255);
@@ -253,7 +291,7 @@ int main(int argc, char * argv[], char *envp[])
 			}
 		}
 	}
-	else if (LIVE_DATA == 2)
+	if (LIVE_DATA == 2)
 	{
 		LIVE_DATA = 1;
 		pthread_mutex_init(&lines_mutex, NULL);
@@ -266,7 +304,7 @@ int main(int argc, char * argv[], char *envp[])
 	}
 	while(!done)
 	{
-		if (restart > 10)
+		if (LIVE_DATA != 1 && restart > 10)
 		{
 			cerr << "restarting due to excessive invalid lengths...\n" << endl << flush;
 			done = 1;
@@ -299,9 +337,15 @@ int main(int argc, char * argv[], char *envp[])
 	}
 	cleanupXWindows();
 	cleanup_fonts();
-	if (restart > 10)
+
+	if (!log.bad() && buf != 000)
 	{
-		execve("./project\0", argv, envp);
+		log.close();
+		cerr.rdbuf(buf); // restore cerr
+	}
+	if (LIVE_DATA != 1 && restart > 10)
+	{
+		execve(argv[0], argv, envp);
 	}
 	return (0);
 }
@@ -412,6 +456,4 @@ void render(void)
 		ggprint8b(&r, 16, 0x00111111, "a - produce an animation");
 	}
 }
-
-
 

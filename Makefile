@@ -43,4 +43,5 @@ clean:
 	rm -f ./core
 	rm -f ./bin/core
 	rm -f ./img/map.ppm
+	rm -f ./errors.log
 
